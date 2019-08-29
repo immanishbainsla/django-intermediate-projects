@@ -1,4 +1,4 @@
-from django.shortcuts import render
+# from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views import generic
@@ -19,7 +19,7 @@ class PostList(SelectRelatedMixin, generic.ListView):
 
 class UserPost(generic.ListView):
     model = models.Post
-    template_name = 'post/user_post_list.html'
+    template_name = 'posts/user_post_list.html'
 
     def get_queryset(self):
         try:
@@ -48,9 +48,14 @@ class CreatePost(LoginRequiredMixin, generic.CreateView, SelectRelatedMixin):
     fields = ('message', 'group')
     model = models.Post
 
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     kwargs.update({"user": self.request.user})
+    #     return kwargs
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.user = self.request.username
+        self.object.user = self.request.user
         self.object.save()
         return super().form_valid(form)
 
@@ -65,5 +70,5 @@ class DeletePost(LoginRequiredMixin, SelectRelatedMixin, generic.DeleteView):
         return queryset.filter(user_id = self.request.user.id)
 
     def delete(self, *args, **kwargs):
-        messages.success(self.request, 'Post Deleted')
+        messages.success(self.request, 'Post Deleted!')
         return super().delete(*args, **kwargs)
